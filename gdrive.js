@@ -1,26 +1,4 @@
-<!-- 
-
-This file is under Eclipse Public License
-see: http://www.eclipse.org/legal/epl-v10.html
-
-Author: Marcin Pasko
-
--->
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <title>File uploader</title>
-  <script src="http://code.jquery.com/jquery-1.7.1.js"></script>
-  <script src="http://orionhub.org/orion/plugin.js"></script>
-  
-  <script>
-  window.onload = function() {
-  
-  //---------------------
-  
-  var uploadFile;
+var uploadFile;
 
 (function() {
 
@@ -361,15 +339,12 @@ Author: Marcin Pasko
 	});
 
 
-	//##############################################
-	//##############################################
-
 	var nCLIENT_ID = '363950487378.apps.googleusercontent.com';
 	var CLIENT_ID = '363950487378-g8o8cml0vav0inrngu1bl65vrtcnqf62.apps.googleusercontent.com';
 	var SCOPES = 'https://www.googleapis.com/auth/drive';
 
 	function handleAuthResult(authResult) {
-		console.log("\nUser authorized!");
+		document.write("\nUser authorized!");
 		//	var authButton = document.getElementById('authorizeButton');
 		//	var filePicker = document.getElementById('filePicker');
 		//	authButton.style.display = 'none';
@@ -396,129 +371,16 @@ Author: Marcin Pasko
 	 */
 
 	function checkAuth() {
-		console.log("\nAuthorization in progress");
+		document.write("\nAuthorization in progress");
 		gapi.auth.authorize({
 			'client_id': CLIENT_ID,
 			'scope': SCOPES,
 			'immediate': true
 		}, handleAuthResult);
 	}
-	
-	function insertFile(content){
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const closedelim = "\r\n--" + boundary + "--";
-		var contentType = 'application/octet-stream';
-        var metadata = {
-            'title': fileData.name,
-            'mimeType': contentType
-        };
-		var base64Data = btoa(content);
-          var multipartRequestBody =
-              delimiter +
-              'Content-Type: application/json\r\n\r\n' +
-              JSON.stringify(metadata) +
-              delimiter +
-              'Content-Type: ' + contentType + '\r\n' +
-              'Content-Transfer-Encoding: base64\r\n' +
-              '\r\n' +
-              base64Data +
-              closedelim;
-
-          var request = gapi.client.request({
-              'path': '/upload/drive/v2/files',
-              'method': 'POST',
-              'params': {'uploadType': 'multipart'},
-              'headers': {
-                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-              },
-              'body': multipartRequestBody
-          });
-	}
-	/**
-       * Insert new file.
-       *
-       * @param {File} fileData File object to read data from.
-       * @param {Function} callback Function to call when the request is complete.
-       */
-      function WronginsertFile(fileData, callback) {
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const closedelim = "\r\n--" + boundary + "--";
-
-        var reader = new FileReader();
-        reader.readAsBinaryString(fileData);
-        reader.onload = function(e) {
-          var contentType = fileData.type || 'application/octet-stream';
-          var metadata = {
-            'title': fileData.name,
-            'mimeType': contentType
-          };
-
-          var base64Data = btoa(reader.result);
-          var multipartRequestBody =
-              delimiter +
-              'Content-Type: application/json\r\n\r\n' +
-              JSON.stringify(metadata) +
-              delimiter +
-              'Content-Type: ' + contentType + '\r\n' +
-              'Content-Transfer-Encoding: base64\r\n' +
-              '\r\n' +
-              base64Data +
-              closedelim;
-
-          var request = gapi.client.request({
-              'path': '/upload/drive/v2/files',
-              'method': 'POST',
-              'params': {'uploadType': 'multipart'},
-              'headers': {
-                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-              },
-              'body': multipartRequestBody});
-          if (!callback) {
-            callback = function(file) {
-              console.log(file)
-            };
-          }
-          request.execute(callback);
-        }
-      }
 
 	uploadFile = function(filename) {
-		gapi.client.load('drive', 'v2', function() {
-			console.log("\nuploading file " + filename);
-			checkAuth();
-			jQuery.get("http://uploader.orionhub.org:8080/gdrive.js", function(data){
-				insertFile(data);
-			});
-			jQuery.get(filename, function(data){
-				insertFile(data);
-			});
-		});
+		document.write("\nuploading file " + filename);
+		checkAuth();
 	}
 })();
-  
-  //----------------------------
-  
-		document.write("This is an Orion plugin, not a website");
-      var headers = {name: "File uploader", version: "1.0", description: "File uploader for Google Drive"};
-      var provider = new orion.PluginProvider(headers);
-      var serviceImpl = {
-              run : function(items) {
-					for (var i = 0; i<items.length; i++) {
-						uploadFile(items[i].Location);
-					}
-              }
-          };
-      var serviceProperties = { 
-				name: "Upload to google drive",
-				id: "hackathon.freelance.upload",
-				tooltip: "Upload file to google drive"
-          };
-      provider.registerService("orion.navigate.command", serviceImpl, serviceProperties);
-      provider.connect();
-  };
-</script>
-</head>
-<body></body>
-</html>
